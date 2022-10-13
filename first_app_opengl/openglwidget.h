@@ -6,6 +6,8 @@
 #include <QVector4D>
 #include <vector>
 #include <QFile>
+#include <QApplication>
+#include <QKeyEvent>
 
 class OpenGLWidget : public QOpenGLWidget, public QOpenGLFunctions_4_0_Core
 {
@@ -30,6 +32,7 @@ public:
     void destroyVBOs();
     void destroyShaders();
     void changeDiagonal();
+    void keyPressEvent(QKeyEvent *event);
 
 protected:
     void initializeGL() ;

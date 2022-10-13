@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>838</width>
+    <height>607</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,13 +15,19 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="OpenGLWidget" name="openGLWidget">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>801</width>
-      <height>521</height>
+      <width>841</width>
+      <height>531</height>
      </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
     </property>
    </widget>
    <widget class="QCheckBox" name="checkBoxDarkMode">
@@ -43,7 +49,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>838</width>
      <height>22</height>
     </rect>
    </property>
