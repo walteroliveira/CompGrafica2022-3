@@ -33,7 +33,7 @@ public:
     void destroyShaders();
     void changeDiagonal();
     void keyPressEvent(QKeyEvent *event);
-
+    void createVAO();
 protected:
     void initializeGL() ;
     void resizeGL(int w, int h);

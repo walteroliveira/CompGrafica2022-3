@@ -93,10 +93,8 @@ makeCurrent();
 glDeleteProgram(shaderProgram);
 }
 
-void OpenGLWidget::createVBOs()
+void OpenGLWidget::createVAO()
 {
-    makeCurrent();
-    destroyVBOs();
     vertices.resize(4);
     colors.resize(4);
     indices.resize(6); //2*3
@@ -112,6 +110,12 @@ void OpenGLWidget::createVBOs()
     // Topology of the mesh ( square )
     indices[0] = 0; indices[1] = 1; indices[2] = 2;
     indices[3] = 2; indices[4] = 3; indices[5] = 0;
+}
+void OpenGLWidget::createVBOs()
+{
+    makeCurrent();
+    destroyVBOs();
+    createVAO();
 
     glGenVertexArrays(1,&vao);
     glBindVertexArray(vao);

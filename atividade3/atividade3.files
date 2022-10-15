@@ -1,0 +1,11 @@
+atividade3.pro
+fshader1.glsl
+main.cpp
+mainwindow.cpp
+mainwindow.h
+mainwindow.ui
+openglwidget.cpp
+openglwidget.h
+resources.qrc
+vshader1.frag
+vshader1.glsl
