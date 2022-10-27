@@ -12,6 +12,8 @@
 #include <QElapsedTimer>
 #include <array>
 #include <cmath>
+#include <QRandomGenerator>
+
 class OpenGLWidget : public QOpenGLWidget, public QOpenGLFunctions_4_0_Core
 {
     Q_OBJECT
@@ -45,16 +47,29 @@ public:
     float targetPosY{0};
 
     QTimer timer;
+    QTimer timerHit;
+    QTimer timerEnemy;
+
     QElapsedTimer elapsedTime;
 
-    bool shooting{false};
+
+    bool shootingZ{false};
+    bool shootingX{false};
+    bool upShot{true};
+    bool enemyActive{false};
+    bool shootingEnemy{false};
+    bool shieldEnemy{false};
+    bool hit{false};
     std::array<float,2> projectilePos;
+    std::array<float,2> enemyProjectilePos;
     int numHits{0};
 
 protected:
     void initializeGL() ;
     void resizeGL(int w, int h);
     void paintGL();
+    void bgHit();
+    void enemy();
 
 signals:
     void updateHitsLabel(QString);

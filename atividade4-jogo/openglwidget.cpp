@@ -155,6 +155,9 @@ void OpenGLWidget::initializeGL()
     qDebug("GLSL Version: %s",glGetString(GL_SHADING_LANGUAGE_VERSION));
 
     connect(&timer, &QTimer::timeout, this, &OpenGLWidget::animate);
+    connect(&timerHit, &QTimer::timeout, this, &OpenGLWidget::bgHit);
+    connect(&timerEnemy, &QTimer::timeout, this, &OpenGLWidget::enemy);
+
     timer.start(0);
     elapsedTime.start();
 
@@ -183,15 +186,25 @@ void OpenGLWidget::paintGL()
     glDrawElements(GL_LINE_STRIP, 6, GL_UNSIGNED_INT, 0);
 
 
-    //Projectile
-    if (shooting)
+    //Projectile Ally
+    if (shootingZ || shootingX)
     {
         glUniform4f(locTranslation, projectilePos[0], projectilePos[1], 0, 0);
-        glUniform1f(locScaling, 0.2f);
-//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_LINES, 0,2);
-        glDrawArrays(GL_LINES, 2,2);
+        glUniform1f(locScaling, 0.05f);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
+
+    if (shootingEnemy)
+    {
+        glUniform4f(locTranslation, enemyProjectilePos[0], enemyProjectilePos[1], 0, 0);
+        glUniform1f(locScaling, 0.05f);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
+    // Background
+    if (hit) glClearColor (0.9, 0, 0, 1);
+    else glClearColor (0, 0, 0, 1);
+
+
 }
 
 void OpenGLWidget::resizeGL(int w, int h)
@@ -222,14 +235,21 @@ void OpenGLWidget::keyPressEvent(QKeyEvent *event)
         case Qt::Key_Down:
             playerPosYOffset = -2.0f;
         break;
-        case Qt::Key_Space:
-        if(!shooting)
+        case Qt::Key_Z:
+        if(!shootingZ && !shootingX)
         {
-            shooting = true;
+            shootingZ = true;
             projectilePos[0] = -0.7;
             projectilePos[1] = playerPosY;
         }
-
+        break;
+        case Qt::Key_X:
+        if(!shootingX && !shootingZ)
+        {
+            shootingX = true;
+            projectilePos[0] = -0.7;
+            projectilePos[1] = playerPosY;
+        }
         break;
         case Qt::Key_Escape:
             QApplication::quit();
@@ -278,8 +298,8 @@ void OpenGLWidget::animate()
         }
     }
 
-    //projectile
-    if (shooting)
+    //projectile ally
+    if (shootingZ)
     {
         projectilePos[0] += 3.0f*elTime;
 
@@ -287,13 +307,105 @@ void OpenGLWidget::animate()
         {
            if(std::fabs(projectilePos[1]- targetPosY) < 0.125f)
            {
+               hit = true;
+               timerHit.start(200);
                numHits++;
                qDebug("Hit!");
                emit updateHitsLabel(QString("#Hits: %1").arg(numHits));
-               shooting = false;
+               shootingZ = false;
            }
         }
     }
-    if (projectilePos[0] > 1.0f) shooting = false;
+
+    if (shootingX)
+    {
+        if (projectilePos[1] > 0.8f) upShot = false;
+        if (projectilePos[1] < -0.8f) upShot = true;
+
+        if (upShot)
+            projectilePos[1] += 3.0f*elTime*sin(qDegreesToRadians(60));
+        else
+            projectilePos[1] -= 3.0f*elTime*sin(qDegreesToRadians(60));
+        projectilePos[0] += 3.0f*elTime*cos(qDegreesToRadians(60));
+
+
+
+        if(projectilePos[0] > 0.8f)
+        {
+           if(std::fabs(projectilePos[1]- targetPosY) < 0.125f)
+           {
+               hit = true;
+               timerHit.start(100);
+               numHits++;
+               qDebug("Hit!");
+               emit updateHitsLabel(QString("#Hits: %1").arg(numHits));
+               shootingX = false;
+           }
+        }
+    }
+    if (projectilePos[0] > 1.0f)
+    {
+        shootingX = false;
+        shootingZ = false;
+    }
+
+    // Projectile Enemy
+    if (shootingEnemy)
+    {
+
+        enemyProjectilePos[1] = targetPosY;
+        enemyProjectilePos[0] -= 1.0f*elTime;
+        if(enemyProjectilePos[0] < -0.8f)
+        {
+           if(std::fabs(enemyProjectilePos[1]- playerPosY) < 0.125f)
+           {
+               hit = true;
+               timerHit.start(200);
+               numHits--;
+               qDebug("Hit no Player!");
+               emit updateHitsLabel(QString("#Hits: %1").arg(numHits));
+               shootingEnemy = false;
+               enemyActive = false;
+           }
+        }
+        if (enemyProjectilePos[0] < -1.0f)
+        {
+            shootingEnemy = false;
+            enemyActive = false;
+        }
+
+    }
+    if (QRandomGenerator::global()->bounded(0, 100) > 95 && !enemyActive)
+    {
+        qDebug("Inimigo ativo");
+        enemyActive = true;
+        enemyProjectilePos[0] = 0.7;
+        timerEnemy.start(3000);
+
+    }
+
+
     update();
+}
+
+void OpenGLWidget::bgHit()
+{
+    qDebug("Change bg!");
+    hit = false;
+    timerHit.stop();
+}
+
+void OpenGLWidget::enemy()
+{
+  if (QRandomGenerator::global()->bounded(0, 100) > 95 && !enemyActive)
+  {
+      shootingEnemy = true;
+      qDebug("Enemy shoot!");
+  }
+  else
+  {
+      shieldEnemy = true;
+      qDebug("Enemy shield!");
+  }
+
 }
