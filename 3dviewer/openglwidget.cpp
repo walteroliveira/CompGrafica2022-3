@@ -193,9 +193,14 @@ void OpenGLWidget::paintGL()
 
     if (!model) return;
 
-    auto shaderProgramID{model->shaderProgram[model->currentShader]};
-    glUseProgram(shaderProgramID);
+    model->modelMatrix.setToIdentity();
+    model->rescaleModelMatrix();
 
     glBindVertexArray(model->vao);
+    auto shaderProgramID{model->shaderProgram[model->currentShader]};
+    glUseProgram(shaderProgramID);
+    auto locModel{glGetUniformLocation(shaderProgramID, "model")};
+    glUniformMatrix4fv(locModel, 1, GL_FALSE, model->modelMatrix.data());
     glDrawElements(GL_TRIANGLES, model->numFaces * 3, GL_UNSIGNED_INT, nullptr);
+
 }
