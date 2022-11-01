@@ -33,7 +33,7 @@ void Model::readOFFFile(const QString &fileName)
         1] >> indices[i*3 + 2];
     }
 
-    rescaleModel();//testar sem este comando
+    //rescaleModelMatrix();//testar sem este comando
     data.close();
 }
 
@@ -57,9 +57,17 @@ void Model::computeBBox()
     diagonalBB = (maxBB - minBB).length();
 }
 
-void Model::rescaleModel()
+void Model::rescaleModelMatrix()
 {
     computeBBox();
-    for (size_t i{0}; i < numVertices; i++)
-        vertices[i] = QVector4D((2.5f/diagonalBB)*(vertices[i].toVector3D() - centroidBB),1);
+//    for (size_t i{0}; i < numVertices; i++)
+//        vertices[i] = QVector4D((2.5f/diagonalBB)*(vertices[i].toVector3D() - centroidBB),1);
+
+    float invdiag{2.5f/diagonalBB};
+
+    //    modelMatrix.rotate(90,1,0,0);
+    modelMatrix.rotate(-120,0,1,0);
+    modelMatrix.scale(invdiag,invdiag, invdiag);
+    modelMatrix.translate(-centroidBB);
+
 }
